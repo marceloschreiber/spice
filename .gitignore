@@ -1,3 +1,6 @@
+# Professor's pdf with specifications
+*.pdf
+
 # Prerequisites
 *.d
 
