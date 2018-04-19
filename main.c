@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "parser.h"
 
@@ -11,12 +11,7 @@ int main(int argc, char *argv[]){
     }
 
     // Parse input file
-    if(parse(argv[1]) == 0){
-        printf("Parser finished\n");
-    }else{
-        printf("Deu algum pau no parser");
-        exit(1);
-    }
+    parse(argv[1]);
 
     return 0;
 }
