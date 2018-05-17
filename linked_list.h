@@ -8,7 +8,8 @@ typedef struct element_tt{
     int terminal_b;
     int terminal_c;
     int terminal_d;
-    double value;
+    double valueDouble;
+    char valueString[STRING_SIZE];
 } element_t;
 
 // Struct for a linked list node
@@ -29,5 +30,5 @@ void initialize(linked_list_t *l);
 void destroy(linked_list_t *l);
 void insert_at_end(linked_list_t *l, element_t element);
 
-void add_element(linked_list_t *l, char element_type, char *name, int terminal_a, int terminal_b, int terminal_c, int terminal_d, double value);
+void add_element(linked_list_t *l, char element_type, char *name, int terminal_a, int terminal_b, int terminal_c, int terminal_d, double valueDouble, char *valueString);
 void print_netlist(linked_list_t *l);

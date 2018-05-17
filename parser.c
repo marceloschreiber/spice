@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <math.h>
 #include "parser.h"
 #include "linked_list.h"
 
@@ -33,17 +35,13 @@ void parse(char *file){
         // Ignore the first line because it`s reserved for commentaries
         if(line_counter == 1){
             continue;
+        }else if(line_counter == ARRAY_SIZE + 1){
+            fprintf(stderr, "ERRO: Numero maximo de linhas é %d\n", (line_counter));
+            exit(1);
         }
-
-        // Check if it's a commentary
-        if(line[i] == '*'){
-            //printf("Found a commentary, ignoring it\n");
+        
+        if(line[i] == '*' || line[i] == '\n'){ // Ignore commentaries and blank lines
             continue;
-        }
-
-        // Ignore blank lines
-        if(line[i] == '\n'){
-            continue; 
         }
 
         // Since the program is case insensitive convert the first letter to uppercase
@@ -53,10 +51,22 @@ void parse(char *file){
 
         // These elements share the same structure
         if(line[i] == 'R' || line[i] == 'C' || line[i] == 'L' || line[i] == 'V' || line[i] == 'I' || line[i] == 'D'){
-            //printf("Found a resistor\n");
             element_type = line[i];
             line[i] = ' '; // sscanf will ignore this whitespace
-            sscanf(line, "%s %s %s %s", name, terminal_a, terminal_b, value);
+
+            strncpy(name, "", STRING_SIZE);
+            strncpy(terminal_a, "", STRING_SIZE);
+            strncpy(terminal_b, "", STRING_SIZE);
+            strncpy(terminal_c, "", STRING_SIZE);
+            strncpy(terminal_d, "", STRING_SIZE);
+            strncpy(value, "", STRING_SIZE);
+
+            sscanf(line, "%s %s %s %s %s %s", name, terminal_a, terminal_b, value, terminal_c, terminal_d);
+            
+            if(strcmp(name, "") == 0 || strcmp(terminal_a, "") == 0 || strcmp(terminal_b, "") == 0 || strcmp(value, "") == 0 || strcmp(terminal_c, "") != 0 || strcmp(terminal_d, "") != 0){
+                fprintf(stderr, "ERRO: Elemento na linha %d contem o numero errado de terminais\n", (line_counter));
+                exit(1);
+            }
 
             double elementValue = convert_to_double(value);
 
@@ -66,33 +76,68 @@ void parse(char *file){
             int terminal_a_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_a);
             int terminal_b_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_b);
 
-            add_element(&elements_linked_list, element_type, name, terminal_a_ref, terminal_b_ref, -1, -1, elementValue);
+            add_element(&elements_linked_list, element_type, name, terminal_a_ref, terminal_b_ref, -1, -1, elementValue, NULL);
         }else if(line[i] == 'E' || line[i] == 'F' || line[i] == 'G' || line[i] == 'H'){
-            //printf("Found G\n");
             element_type = line[i];
             line[i] = ' '; // sscanf will ignore this whitespace
+
+            strncpy(name, "", STRING_SIZE);
+            strncpy(terminal_a, "", STRING_SIZE);
+            strncpy(terminal_b, "", STRING_SIZE);
+            strncpy(terminal_c, "", STRING_SIZE);
+            strncpy(terminal_d, "", STRING_SIZE);
+            strncpy(value, "", STRING_SIZE);
+
             sscanf(line, "%s %s %s %s %s %s", name, terminal_a, terminal_b, terminal_c, terminal_d, value);
+
+            if(strcmp(name, "") == 0 || strcmp(terminal_a, "") == 0 || strcmp(terminal_b, "") == 0 || strcmp(value, "") == 0 || strcmp(terminal_c, "") == 0 || strcmp(terminal_d, "") == 0){
+                fprintf(stderr, "ERRO: Elemento na linha %d contem o numero errado de terminais\n", (line_counter));
+                exit(1);
+            }
 
             double elementValue = convert_to_double(value);
 
-            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_a);
-            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_b);
-            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_c);
             circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_d);
+            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_c);
+            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_b);
+            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_a);
+            
 
             int terminal_a_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_a);
             int terminal_b_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_b);
             int terminal_c_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_c);
             int terminal_d_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_d);
 
-            add_element(&elements_linked_list, element_type, name, terminal_a_ref, terminal_b_ref, terminal_c_ref, terminal_d_ref, elementValue);
+            add_element(&elements_linked_list, element_type, name, terminal_a_ref, terminal_b_ref, terminal_c_ref, terminal_d_ref, elementValue, NULL);
         }else if(line[i] == 'Q' || line[i] == 'M'){
-            //printf("Found M\n");
             element_type = line[i];
             line[i] = ' '; // sscanf will ignore this whitespace
-            sscanf(line, "%s %s %s %s %s", name, terminal_a, terminal_b, terminal_c, value);
+
+            strncpy(name, "", STRING_SIZE);
+            strncpy(terminal_a, "", STRING_SIZE);
+            strncpy(terminal_b, "", STRING_SIZE);
+            strncpy(terminal_c, "", STRING_SIZE);
+            strncpy(terminal_d, "", STRING_SIZE);
+            strncpy(value, "", STRING_SIZE);
+
+            sscanf(line, "%s %s %s %s %s %s", name, terminal_a, terminal_b, terminal_c, value, terminal_d);
+
+            if(strcmp(name, "") == 0 || strcmp(terminal_a, "") == 0 || strcmp(terminal_b, "") == 0 || strcmp(value, "") == 0 || strcmp(terminal_c, "") == 0 || strcmp(terminal_d, "") != 0){
+                fprintf(stderr, "ERRO: Elemento na linha %d contem o numero errado de terminais\n", (line_counter));
+                exit(1);
+            }
+
+            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_c);
+            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_b);
+            circuit_nodes_length = link_node_label(circuit_nodes, circuit_nodes_length, terminal_a);
+
+            int terminal_a_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_a);
+            int terminal_b_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_b);
+            int terminal_c_ref = get_label_id(circuit_nodes, circuit_nodes_length, terminal_c);
+
+            add_element(&elements_linked_list, element_type, name, terminal_a_ref, terminal_b_ref, terminal_c_ref, -1,  -1, value);
         }else{
-            fprintf(stderr, "ERROR: Invalid element type at line %d\n", (line_counter));
+            fprintf(stderr, "ERRO: Elemento inválido na linha %d\n", (line_counter));
             exit(1);
         }
     }
@@ -131,7 +176,64 @@ int get_label_id(circuit_node_t *circuit_nodes, int length, char *label){
     return -1;
 }
 
-// Convert a string to double
+// Convert a string to double, skipping A LOT of validations
 double convert_to_double(char *s){
-    return atof(s);
+    int len = strlen(s);
+    // Convert to upper case in a different way because this is C...
+    char upper_case_str[len];
+    for(int i = 0; i < len; i++){
+        upper_case_str[i] = toupper(s[i]);
+    }
+
+    char only_numbers[len];
+    double converted;
+    if(upper_case_str[len - 1] == 'F'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, -15);
+    }else if(upper_case_str[len - 1] == 'P'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, -12);
+    }else if(upper_case_str[len - 1] == 'N'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, -9);
+    }else if(upper_case_str[len - 1] == 'U'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, -6);
+    }else if(upper_case_str[len - 1] == 'M'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, -3);
+    }else if(upper_case_str[len - 1] == 'K'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, 3);
+    }else if(upper_case_str[len - 1] == 'T'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, 12);
+    }else if(len >= 4 && upper_case_str[len - 1] == 'G' && upper_case_str[len - 2] == 'E' && upper_case_str[len - 3 ] == 'M'){
+        strncpy(only_numbers, s, len - 3);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, 6);
+    }else if(upper_case_str[len - 1] == 'G'){
+        strncpy(only_numbers, s, len - 1);
+        only_numbers[len - 1] = '\0';
+        converted = atof(only_numbers);
+        converted *= pow(10, 9);
+    }else{
+        converted = atof(s);
+    }
+    return converted;
 }

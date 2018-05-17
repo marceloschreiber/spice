@@ -16,7 +16,7 @@ void destroy(linked_list_t *l){
     }
 }
 
-void add_element(linked_list_t *l, char element_type, char *name, int terminal_a, int terminal_b, int terminal_c, int terminal_d, double value){
+void add_element(linked_list_t *l, char element_type, char *name, int terminal_a, int terminal_b, int terminal_c, int terminal_d, double valueDouble, char *valueString){
     element_t element;
     element.element_type = element_type;
     strcpy(element.name, name);
@@ -24,9 +24,11 @@ void add_element(linked_list_t *l, char element_type, char *name, int terminal_a
     element.terminal_b = terminal_b;
     element.terminal_c = terminal_c;
     element.terminal_d = terminal_d;
-    element.value = value;
-
-    //printf("#I: %c[%s]\t; %s, %s; value=%s\n", element_type, name, terminal_a, terminal_b, value);
+    if(valueDouble != -1){
+        element.valueDouble = valueDouble;
+    }else{
+        strcpy(element.valueString, valueString);
+    }
 
     insert_at_end(l, element);
 }
@@ -68,9 +70,11 @@ void print_netlist(linked_list_t *l){
     while(aux != NULL){
         char element_type = aux->element.element_type;
         if(element_type == 'R' || element_type == 'C' || element_type == 'L' || element_type == 'V' || element_type == 'I' || element_type == 'D'){
-            printf("#%d: %c[%s]\t; n+[%d], n-[%d]; value=%e\n", i, aux->element.element_type, aux->element.name, aux->element.terminal_a, aux->element.terminal_b, aux->element.value);
+            printf("#%d: %c[%s]\t\t; n+[%d], n-[%d]; value=%e\n", i, aux->element.element_type, aux->element.name, aux->element.terminal_a, aux->element.terminal_b, aux->element.valueDouble);
         }else if(element_type == 'E' || element_type == 'F' || element_type == 'G' || element_type == 'H'){
-            printf("#%d: %c[%s]\t; na[%d], nb[%d], nc[%d], nd[%d]; value=%e\n", i, aux->element.element_type, aux->element.name, aux->element.terminal_a, aux->element.terminal_b, aux->element.terminal_c, aux->element.terminal_d, aux->element.value);
+            printf("#%d: %c[%s]\t\t; na[%d], nb[%d], nc[%d], nd[%d]; value=%e\n", i, aux->element.element_type, aux->element.name, aux->element.terminal_a, aux->element.terminal_b, aux->element.terminal_c, aux->element.terminal_d, aux->element.valueDouble);
+        }else if(element_type == 'Q' || element_type == 'M'){
+            printf("#%d: %c[%s]\t\t; na[%d], nb[%d], nc[%d], value=%s\n", i, aux->element.element_type, aux->element.name, aux->element.terminal_a, aux->element.terminal_b, aux->element.terminal_c, aux->element.valueString);            
         }
         aux = aux->prox;
         i++;

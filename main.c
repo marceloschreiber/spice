@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
     
     // Check arguments and show usage
     if(argc < 2){
-        printf("Usage: ./parser filename\n");
+        printf("Como usar: ./parser nome_do_arquivo\n");
         exit(1);
     }
 
